@@ -14,7 +14,7 @@ class ShodanSearch(object):
 
 	def __init__(self, API_KEY):
 		"""
-		Test and, if valid, set, as propertie, the API_KEY for Shodan
+		Test and, if valid, set, as property, the API_KEY for Shodan
 		"""
 		self.api = shodan.Shodan(API_KEY)
 		# Making a test search to see if API_KEY is valid
@@ -54,7 +54,7 @@ class ShodanSearch(object):
 		Filter the results of a Shodan search based on filter properties and terms
 
 		Args:
-			filter_by (str): the propertie to be used in the filter. Can be:
+			filter_by (str): the property to be used in the filter. Can be:
 				'port' (int): from 0 to 65535
 				'protocol' (str): telnet, ssh, http... and so on
 				'city' (str): you name it
@@ -87,7 +87,7 @@ class ShodanSearch(object):
 			filter_key = None
 			return None
 
-		# If not set as argument, get the propertie
+		# If not set as argument, get the property
 		if search_results == None:
 			search_results = self.search_results
 
