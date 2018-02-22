@@ -49,17 +49,24 @@ class ShodanSearch(object):
 			self.search_results = None
 			return None
 
-	def filter_by_protocol(self, protocol):
+	def filter_by_protocol(self, protocol, search_results=None):
 		"""
 		Filter search results by protocol
 
 		Args:
 			protocol (str): should be like 'telnet', 'ssh', 'http'... and so on
+			search_results (dict, optional): expecting a dict in a format like the one returned by Shodan
 
 		Returns:
 			filtered_by_protocol (dict): the filtered results
 		"""
-		if self.search_results == None:
+
+		# If not set as argument, get the propertie
+		if search_results == None:
+			search_results = self.search_results
+
+		# If still None...
+		if search_results == None:
 			print 'Search results not found, try call the search() method first!'
 			self.filtered_by_protocol = None
 			return None
@@ -67,7 +74,7 @@ class ShodanSearch(object):
 		# Creating dict to hold the filtered values
 		self.filtered_by_protocol = {}
 
-		for service in self.search_results['matches']:
+		for service in search_results['matches']:
 			# _shodan[module] holds the protocol value
 			if service['_shodan']['module'] == protocol:
 				key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
@@ -75,7 +82,7 @@ class ShodanSearch(object):
 
 		return self.filtered_by_protocol
 
-
 shodan_search = ShodanSearch('ufck')
 shodan_search.search('gvt', 1, 3)
 shodan_search.filter_by_protocol('telnet')
+print shodan_search.filtered_by_protocol
