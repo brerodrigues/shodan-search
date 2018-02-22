@@ -82,7 +82,34 @@ class ShodanSearch(object):
 
 		return self.filtered_by_protocol
 
-shodan_search = ShodanSearch('ufck')
-shodan_search.search('gvt', 1, 3)
-shodan_search.filter_by_protocol('telnet')
-print shodan_search.filtered_by_protocol
+	def filter_by_port(self, port, search_results=None):
+		"""
+		Filter search results by port
+
+		Args:
+			port (int): the port number from 0 to 65535
+			search_results (dict, optional): expecting a dict in a format like the one returned by Shodan
+
+		Returns:
+			filtered_by_port (dict): the filtered results
+		"""
+
+		# If not set as argument, get the propertie
+		if search_results == None:
+			search_results = self.search_results
+
+		# If still None...
+		if search_results == None:
+			print 'Search results not found, try call the search() method first!'
+			self.filtered_by_port = None
+			return None
+
+		# Creating dict to hold the filtered values
+		self.filtered_by_port = {}
+
+		for service in search_results['matches']:
+			if service['port'] == int(port):
+				key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
+				self.filtered_by_port.update({key: service})
+
+		return self.filter_by_port
