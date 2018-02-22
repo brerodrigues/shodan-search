@@ -49,17 +49,43 @@ class ShodanSearch(object):
 			self.search_results = None
 			return None
 
-	def filter_by_protocol(self, protocol, search_results=None):
+	def filter(self, filter_by, filter_term, search_results=None):
 		"""
-		Filter search results by protocol
+		Filter the results of a Shodan search based on filter properties and terms
 
 		Args:
-			protocol (str): should be like 'telnet', 'ssh', 'http'... and so on
-			search_results (dict, optional): expecting a dict in a format like the one returned by Shodan
+			filter_by (str): the propertie to be used in the filter. Can be:
+				'port' (int): from 0 to 65535
+				'protocol' (str): telnet, ssh, http... and so on
+				'city' (str): you name it
+				'country' (str): you name it
+			filter_term (str): the term used in the filter process
+			search_results (dic, optional): the search results to be filtered
 
 		Returns:
-			filtered_by_protocol (dict): the filtered results
+			filtered (dict): dictionary with the results
 		"""
+		port_filter = 'port'
+		#data_filter = 'data'
+		protocol_filter = ['_shodan', 'module']
+		city_filter = ['location', 'city']
+		country_filter = ['location', 'country_name']
+
+		if filter_by == 'port':
+			filter_key = port_filter
+			filter_term = int(filter_term)
+		#elif filter_by == 'data':
+		#	filter_key = data_filter
+		elif filter_by == 'protocol':
+			filter_key = protocol_filter
+		elif filter_by == 'city':
+			filter_key = city_filter
+		elif filter_by == 'country':
+			filter_key = country_filter
+		else:
+			print 'Invalid filter key'
+			filter_key = None
+			return None
 
 		# If not set as argument, get the propertie
 		if search_results == None:
@@ -68,48 +94,19 @@ class ShodanSearch(object):
 		# If still None...
 		if search_results == None:
 			print 'Search results not found, try call the search() method first!'
-			self.filtered_by_protocol = None
+			self.filtered = None
 			return None
 
-		# Creating dict to hold the filtered values
-		self.filtered_by_protocol = {}
+		self.filtered = {}
 
 		for service in search_results['matches']:
-			# _shodan[module] holds the protocol value
-			if service['_shodan']['module'] == protocol:
-				key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
-				self.filtered_by_protocol.update({key: service})
+			if type(filter_key) == list:
+				if service[filter_key[0]][filter_key[1]] == filter_term:
+					key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
+					self.filtered.update({key: service})
+			elif type(filter_key) == str:
+				if service[filter_key] == filter_term:
+					key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
+					self.filtered.update({key: service})
 
-		return self.filtered_by_protocol
-
-	def filter_by_port(self, port, search_results=None):
-		"""
-		Filter search results by port
-
-		Args:
-			port (int): the port number from 0 to 65535
-			search_results (dict, optional): expecting a dict in a format like the one returned by Shodan
-
-		Returns:
-			filtered_by_port (dict): the filtered results
-		"""
-
-		# If not set as argument, get the propertie
-		if search_results == None:
-			search_results = self.search_results
-
-		# If still None...
-		if search_results == None:
-			print 'Search results not found, try call the search() method first!'
-			self.filtered_by_port = None
-			return None
-
-		# Creating dict to hold the filtered values
-		self.filtered_by_port = {}
-
-		for service in search_results['matches']:
-			if service['port'] == int(port):
-				key = str(service['hostnames']) # Converting value to str because has to be imutable to be a key
-				self.filtered_by_port.update({key: service})
-
-		return self.filter_by_port
+		return self.filtered
